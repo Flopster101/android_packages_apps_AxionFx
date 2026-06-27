@@ -37,6 +37,7 @@ import com.android.axion.axionfx.AxionFxController
 import com.android.axion.axionfx.device.DeviceCategory
 import com.android.axion.axionfx.device.DeviceProfile
 import com.android.axion.axionfx.device.DeviceProfileManager
+import com.android.axion.axionfx.preset.PresetManager
 import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -125,7 +126,13 @@ class AxionFxService : Service() {
         val profile = DeviceProfile.Fixed(routed.category)
         val token = DeviceProfileManager.getBinding(prefs, profile)
         if (token.isNullOrEmpty()) {
+            val editor = prefs.edit()
+            PresetManager.clearEffectSettings(editor, prefs)
+            editor.apply()
+            restoreSettings()
             lastAppliedCategory = routed.category
+            _appliedPresetName.value = null
+            Log.d(TAG, "Auto-switched to unbound profile for ${routed.category} (reset to defaults)")
             return
         }
         val applied = DeviceProfileManager.applyBinding(this, prefs, profile)
@@ -135,6 +142,11 @@ class AxionFxService : Service() {
             _appliedPresetName.value = DeviceProfileManager.displayName(token)
             Log.d(TAG, "Auto-switched profile for ${routed.category}")
         }
+    }
+
+    fun forceRoutingEval() {
+        lastAppliedCategory = null
+        scheduleRoutingEval()
     }
 
     fun applyProfile(profile: DeviceProfile): Boolean {
@@ -306,6 +318,10 @@ class AxionFxService : Service() {
 
         internal fun updateMasterEnabledFlow(enabled: Boolean) {
             _masterEnabled.value = enabled
+        }
+
+        fun setAppliedPresetName(name: String?) {
+            _appliedPresetName.value = name
         }
 
         fun primeFromContext(context: Context) {

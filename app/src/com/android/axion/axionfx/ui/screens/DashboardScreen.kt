@@ -162,6 +162,7 @@ fun DashboardScreen(
                     showResetDialog = false
                     fx.resetAll()
                     AxionFxService.updateMasterEnabledFlow(EffectDefaults.MASTER_ENABLED)
+                    AxionFxService.setAppliedPresetName(null)
                     outputGain = EffectDefaults.OUTPUT_GAIN.toFloat()
                     outputPan = EffectDefaults.OUTPUT_PAN.toFloat()
                     bassEnabled = EffectDefaults.BASS_ENABLED

@@ -109,6 +109,14 @@ object PresetManager {
         Log.d(TAG, "Saved preset: $name -> ${file.absolutePath}")
     }
 
+    fun clearEffectSettings(editor: SharedPreferences.Editor, prefs: SharedPreferences) {
+        for (key in prefs.all.keys) {
+            if (!key.startsWith("device_profile_")) {
+                editor.remove(key)
+            }
+        }
+    }
+
     fun loadPreset(context: Context, name: String, prefs: SharedPreferences) {
         val file = File(presetsDir(context), "${sanitizeName(name)}.json")
         if (!file.exists()) return
@@ -119,6 +127,7 @@ object PresetManager {
     fun loadPresetFromJson(jsonString: String, prefs: SharedPreferences) {
         val json = JSONObject(jsonString)
         val editor = prefs.edit()
+        clearEffectSettings(editor, prefs)
 
         for (key in json.keys()) {
             when (val value = json.get(key)) {
@@ -189,7 +198,7 @@ object PresetManager {
     fun loadBuiltinPreset(name: String, prefs: SharedPreferences) {
         val preset = BUILTIN_PRESETS[name] ?: return
         val editor = prefs.edit()
-        editor.clear()
+        clearEffectSettings(editor, prefs)
         for ((key, value) in preset) {
             when (value) {
                 is Boolean -> editor.putBoolean(key, value)

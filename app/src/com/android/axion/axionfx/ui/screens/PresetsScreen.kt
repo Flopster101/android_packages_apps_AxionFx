@@ -234,6 +234,7 @@ fun PresetsScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
                             onClick = {
                                 PresetManager.loadBuiltinPreset(name, viewModel.repo.prefs)
                                 AxionFxService.instance?.restoreSettings()
+                                AxionFxService.setAppliedPresetName(name)
                                 Toast.makeText(context, context.getString(R.string.preset_loaded, name), Toast.LENGTH_SHORT).show()
                             },
                         )
@@ -252,6 +253,7 @@ fun PresetsScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
                                 onLoad = {
                                     PresetManager.loadPreset(context, name, viewModel.repo.prefs)
                                     AxionFxService.instance?.restoreSettings()
+                                    AxionFxService.setAppliedPresetName(name)
                                     Toast.makeText(context, context.getString(R.string.preset_loaded, name), Toast.LENGTH_SHORT).show()
                                 },
                                 onRename = {

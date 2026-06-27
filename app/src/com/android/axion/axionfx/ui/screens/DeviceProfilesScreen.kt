@@ -130,6 +130,7 @@ fun DeviceProfilesScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
             onSelect = { token ->
                 DeviceProfileManager.setBinding(prefs, profile, token)
                 refreshProfiles()
+                AxionFxService.instance?.forceRoutingEval()
                 pickerFor = null
             },
         )
@@ -159,6 +160,7 @@ fun DeviceProfilesScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
                 val ok = DeviceProfileManager.renameUserProfile(prefs, profile.name, newName)
                 if (ok) {
                     refreshProfiles()
+                    AxionFxService.instance?.forceRoutingEval()
                     profileToRename = null
                 } else {
                     Toast.makeText(context, context.getString(R.string.device_profiles_add_invalid), Toast.LENGTH_SHORT).show()
@@ -176,6 +178,7 @@ fun DeviceProfilesScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
                 TextButton(onClick = {
                     DeviceProfileManager.removeUserProfile(prefs, profile.name)
                     refreshProfiles()
+                    AxionFxService.instance?.forceRoutingEval()
                     profileToDelete = null
                 }) {
                     Text(

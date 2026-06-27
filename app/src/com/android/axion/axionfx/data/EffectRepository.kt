@@ -28,7 +28,15 @@ class EffectRepository(val prefs: SharedPreferences) {
     fun putInt(key: String, value: Int) = prefs.edit().putInt(key, value).apply()
     fun putString(key: String, value: String?) = prefs.edit().putString(key, value).apply()
 
-    fun clear() = prefs.edit().clear().apply()
+    fun clear() {
+        val editor = prefs.edit()
+        for (key in prefs.all.keys) {
+            if (!key.startsWith("device_profile_")) {
+                editor.remove(key)
+            }
+        }
+        editor.apply()
+    }
 
     val all: Map<String, *> get() = prefs.all
 
