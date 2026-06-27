@@ -50,7 +50,22 @@ class AxionFxService : Service() {
     private val routingThread = HandlerThread("AxionFxRouting").apply { start() }
     private val routingHandler = Handler(routingThread.looper)
     private val audioManager by lazy { getSystemService(AudioManager::class.java) }
-    private var lastAppliedCategory: DeviceCategory? = null
+    private var lastAppliedCategory: DeviceCategory?
+        get() {
+            val name = prefs.getString(KEY_LAST_APPLIED_CATEGORY, null) ?: return null
+            return try {
+                DeviceCategory.valueOf(name)
+            } catch (_: Exception) {
+                null
+            }
+        }
+        set(value) {
+            if (value == null) {
+                prefs.edit().remove(KEY_LAST_APPLIED_CATEGORY).apply()
+            } else {
+                prefs.edit().putString(KEY_LAST_APPLIED_CATEGORY, value.name).apply()
+            }
+        }
 
     private val evalRunnable = Runnable { evaluateRoutingChange() }
 
@@ -298,6 +313,7 @@ class AxionFxService : Service() {
         const val KEY_OUTPUT_GAIN = "output_gain"
         const val KEY_MEDIA_ONLY = "media_only_mode"
         const val KEY_AUTO_SWITCH = "device_profile_auto_switch"
+        private const val KEY_LAST_APPLIED_CATEGORY = "last_applied_category"
         private const val TAG = "AxionFxService"
         private const val ROUTING_DEBOUNCE_MS = 250L
 
