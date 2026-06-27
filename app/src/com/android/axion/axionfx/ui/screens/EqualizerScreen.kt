@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.rounded.Replay
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -48,6 +49,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -150,10 +152,27 @@ fun EqualizerScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
         }
     }
 
-    fun syncResponseFromBands() {
-        val values = FloatArray(bandGains.size) { bandGains[it].floatValue }
-        responseGains.forEachIndexed { index, state ->
-            state.floatValue = interpolateMagnitude(BAND_CENTERS_HZ, values, RESPONSE_FREQUENCIES_HZ[index])
+    val history = remember { mutableStateListOf<Pair<FloatArray, FloatArray>>() }
+    var dragStartSnapshot by remember { mutableStateOf<Pair<FloatArray, FloatArray>?>(null) }
+
+    fun captureStateToHistory() {
+        val bandsSnapshot = FloatArray(10) { bandGains[it].floatValue }
+        val responseSnapshot = FloatArray(responseGains.size) { responseGains[it].floatValue }
+        history.add(Pair(bandsSnapshot, responseSnapshot))
+    }
+
+    fun startGestureCapture() {
+        if (dragStartSnapshot == null) {
+            val bandsSnapshot = FloatArray(10) { bandGains[it].floatValue }
+            val responseSnapshot = FloatArray(responseGains.size) { responseGains[it].floatValue }
+            dragStartSnapshot = Pair(bandsSnapshot, responseSnapshot)
+        }
+    }
+
+    fun endGestureCapture() {
+        dragStartSnapshot?.let {
+            history.add(it)
+            dragStartSnapshot = null
         }
     }
 
@@ -161,6 +180,34 @@ fun EqualizerScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
         enabled = true
         viewModel.interactor.setMasterEnabled(true)
         viewModel.interactor.setEqEnabled(true)
+    }
+
+    fun undoLastChange() {
+        if (history.isNotEmpty()) {
+            val lastState = history.removeAt(history.size - 1)
+            val bandsSnapshot = lastState.first
+            val responseSnapshot = lastState.second
+            for (i in 0..9) {
+                bandGains[i].floatValue = bandsSnapshot[i]
+            }
+            responseSnapshot.forEachIndexed { index, value ->
+                responseGains[index].floatValue = value
+            }
+            ensureEqActive()
+            responseGains.forEachIndexed { index, state ->
+                viewModel.interactor.setArbitraryEqBandLevel(index, state.floatValue.roundToInt().coerceIn(-1200, 1200))
+            }
+            for (i in 0..9) {
+                viewModel.interactor.setEqBandLevel(i, bandGains[i].floatValue.toInt())
+            }
+        }
+    }
+
+    fun syncResponseFromBands() {
+        val values = FloatArray(bandGains.size) { bandGains[it].floatValue }
+        responseGains.forEachIndexed { index, state ->
+            state.floatValue = interpolateMagnitude(BAND_CENTERS_HZ, values, RESPONSE_FREQUENCIES_HZ[index])
+        }
     }
 
     fun applyLegacyBandsFromResponse() {
@@ -249,6 +296,7 @@ fun EqualizerScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
             val text = context.contentResolver.openInputStream(uri)?.use { input ->
                 input.bufferedReader().readText()
             }.orEmpty()
+            captureStateToHistory()
             val message = if (applyAutoEq(text)) importSuccess else importFailed
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         } catch (_: Exception) {
@@ -322,18 +370,41 @@ fun EqualizerScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
                         bandGains = bandGains,
                         enabled = enabled,
                         onToneChange = { bass, mid, treble -> applySimpleTone(bass, mid, treble) },
+                        onGestureStart = { startGestureCapture() },
+                        onGestureEnd = { endGestureCapture() },
+                        onPresetChange = { captureStateToHistory() },
                     )
                     else -> ArbitraryResponseEqMode(
                         responseGains = responseGains,
                         enabled = enabled,
                         onEnable = { ensureEqActive() },
                         onResponseChange = { index, value -> applyResponseNode(index, value) },
-                        onSmooth = { smoothResponse() },
+                        onSmooth = {
+                            captureStateToHistory()
+                            smoothResponse()
+                        },
                         onReset = {
+                            captureStateToHistory()
                             responseGains.forEach { it.floatValue = 0f }
                             applyResponseToBands()
                         },
+                        onGestureStart = { startGestureCapture() },
+                        onGestureEnd = { endGestureCapture() },
                     )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                FilledTonalButton(
+                    onClick = { undoLastChange() },
+                    enabled = enabled && history.isNotEmpty(),
+                ) {
+                    Icon(Icons.AutoMirrored.Rounded.Undo, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Undo")
                 }
             }
 
@@ -348,6 +419,9 @@ private fun SimpleEqMode(
     bandGains: Array<MutableFloatState>,
     enabled: Boolean,
     onToneChange: (Float, Float, Float) -> Unit,
+    onGestureStart: () -> Unit,
+    onGestureEnd: () -> Unit,
+    onPresetChange: () -> Unit,
 ) {
     var bass by remember { mutableFloatStateOf(0f) }
     var mid by remember { mutableFloatStateOf(0f) }
@@ -375,6 +449,8 @@ private fun SimpleEqMode(
             onBassChange = { bass = it; applyTone() },
             onMidChange = { mid = it; applyTone() },
             onTrebleChange = { treble = it; applyTone() },
+            onGestureStart = onGestureStart,
+            onGestureEnd = onGestureEnd,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp)
@@ -392,6 +468,7 @@ private fun SimpleEqMode(
                 PRESETS.take(3).forEach { preset ->
                     FilledTonalButton(
                         onClick = {
+                            onPresetChange()
                             for (i in 0..9) bandGains[i].floatValue = preset.bands[i].toFloat()
                             syncFromBands()
                             applyTone()
@@ -408,6 +485,7 @@ private fun SimpleEqMode(
                 PRESETS.drop(3).forEach { preset ->
                     FilledTonalButton(
                         onClick = {
+                            onPresetChange()
                             for (i in 0..9) bandGains[i].floatValue = preset.bands[i].toFloat()
                             syncFromBands()
                             applyTone()
@@ -428,6 +506,8 @@ private fun CircularEqControl(
     onBassChange: (Float) -> Unit,
     onMidChange: (Float) -> Unit,
     onTrebleChange: (Float) -> Unit,
+    onGestureStart: () -> Unit,
+    onGestureEnd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val textMeasurer = rememberTextMeasurer()
@@ -508,6 +588,7 @@ private fun CircularEqControl(
                     val axis = findNearestAxis(down.position, size.width, size.height)
                     if (axis < 0) return@awaitEachGesture
                     down.consume()
+                    onGestureStart()
 
                     val cx = size.width / 2f
                     val cy = size.height / 2f
@@ -537,6 +618,7 @@ private fun CircularEqControl(
                         }
                     }
                     activeAxis = -1
+                    onGestureEnd()
                 }
             }
     ) {
@@ -625,6 +707,8 @@ private fun ArbitraryResponseEqMode(
     onResponseChange: (Int, Float) -> Unit,
     onSmooth: () -> Unit,
     onReset: () -> Unit,
+    onGestureStart: () -> Unit,
+    onGestureEnd: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Column(
@@ -663,6 +747,8 @@ private fun ArbitraryResponseEqMode(
                     enabled = enabled,
                     onEnable = onEnable,
                     onResponseChange = onResponseChange,
+                    onGestureStart = onGestureStart,
+                    onGestureEnd = onGestureEnd,
                     modifier = Modifier
                         .width(1080.dp)
                         .height(260.dp),
@@ -694,6 +780,8 @@ private fun EqLineGraph(
     enabled: Boolean,
     onEnable: () -> Unit,
     onResponseChange: (Int, Float) -> Unit,
+    onGestureStart: () -> Unit,
+    onGestureEnd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -747,6 +835,7 @@ private fun EqLineGraph(
                     if (abs(overSlop.y) > abs(overSlop.x)) {
                         isVerticalAdjustment = true
                         activeNode = band
+                        onGestureStart()
                         updateBandFromY(band, change.position.y, size.height)
                         change.consume()
                     }
@@ -767,6 +856,7 @@ private fun EqLineGraph(
                     }
                 }
                 activeNode = -1
+                onGestureEnd()
             }
         },
     ) {

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.rounded.Replay
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
@@ -31,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,6 +65,8 @@ fun FirEqScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
             mutableStateOf(viewModel.loadInt("$KEY_FIR_EQ_BAND_PREFIX$it", 0).toFloat() / 10f)
         }
     }
+    val history = remember { mutableStateListOf<FloatArray>() }
+    var dragStartBands by remember { mutableStateOf<FloatArray?>(null) }
 
     AxionScaffold(title = stringResource(R.string.fir_eq_screen_title), onBackClick = onBackClick) { innerPadding ->
         Column(
@@ -130,10 +134,19 @@ fun FirEqScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
                                 value = bandGains[band].value,
                                 enabled = enabled,
                                 onValueChange = { newVal ->
+                                    if (dragStartBands == null) {
+                                        dragStartBands = FloatArray(15) { bandGains[it].value }
+                                    }
                                     bandGains[band].value = newVal
                                     val tenthsDb = (newVal * 10).toInt()
                                     viewModel.interactor.setFirEqBandGain(band, tenthsDb)
                                 },
+                                onValueChangeFinished = {
+                                    dragStartBands?.let {
+                                        history.add(it)
+                                        dragStartBands = null
+                                    }
+                                }
                             )
                         }
                     }
@@ -144,19 +157,40 @@ fun FirEqScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
             ) {
                 FilledTonalButton(
                     onClick = {
+                        val snapshot = FloatArray(15) { bandGains[it].value }
+                        history.add(snapshot)
                         for (band in 0 until 15) {
                             bandGains[band].value = 0f
                             viewModel.interactor.setFirEqBandGain(band, 0)
                         }
                     },
+                    enabled = enabled,
                 ) {
                     Icon(Icons.Rounded.Replay, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.fir_eq_flat))
+                }
+
+                FilledTonalButton(
+                    onClick = {
+                        if (history.isNotEmpty()) {
+                            val lastState = history.removeAt(history.size - 1)
+                            for (band in 0 until 15) {
+                                bandGains[band].value = lastState[band]
+                                val tenthsDb = (lastState[band] * 10).toInt()
+                                viewModel.interactor.setFirEqBandGain(band, tenthsDb)
+                            }
+                        }
+                    },
+                    enabled = enabled && history.isNotEmpty(),
+                ) {
+                    Icon(Icons.AutoMirrored.Rounded.Undo, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Undo")
                 }
             }
 
@@ -171,6 +205,7 @@ private fun FirBandSlider(
     value: Float,
     enabled: Boolean,
     onValueChange: (Float) -> Unit,
+    onValueChangeFinished: () -> Unit,
 ) {
     Column(
         modifier = Modifier.width(48.dp),
@@ -193,6 +228,7 @@ private fun FirBandSlider(
             Slider(
                 value = value,
                 onValueChange = onValueChange,
+                onValueChangeFinished = onValueChangeFinished,
                 valueRange = -20f..20f,
                 enabled = enabled,
                 modifier = Modifier
