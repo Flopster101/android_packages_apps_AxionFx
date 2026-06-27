@@ -29,6 +29,19 @@
 #include "AxionFxEffect.h"
 #include "AxionFxParams.h"
 
+namespace aidl::android::hardware::audio::effect {
+inline const AudioUuid& getEffectTypeUuidAxionFx() {
+    static const ::android::base::NoDestructor<AudioUuid> uuid(
+        stringToUuid("5867be72-4060-4c55-a378-c1cdef3e1353"));
+    return *uuid;
+}
+inline const AudioUuid& getEffectImplUuidAxionFx() {
+    static const ::android::base::NoDestructor<AudioUuid> uuid(
+        stringToUuid("f35cb927-a887-4f3d-847f-770634486d53"));
+    return *uuid;
+}
+} // namespace aidl::android::hardware::audio::effect
+
 using aidl::android::hardware::audio::effect::AxionFxContext;
 using aidl::android::hardware::audio::effect::AxionFxEffect;
 using aidl::android::hardware::audio::effect::DefaultExtension;
