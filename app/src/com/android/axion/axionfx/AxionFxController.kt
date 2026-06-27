@@ -158,6 +158,7 @@ object AxionFxController {
         setParameter(0xD05, (band shl 16) or (tenthsDb and 0xFFFF))
     fun setMCompCrossover(index: Int, hz: Int) =
         setParameter(0xD06, (index shl 16) or (hz and 0xFFFF))
+    fun setMCompBlend(percent: Int) = setParameter(0xD07, percent)
 
     fun setExciterEnabled(enabled: Boolean) = setParameter(0xE00, if (enabled) 1 else 0)
     fun setExciterDrive(percent: Int) = setParameter(0xE01, percent)

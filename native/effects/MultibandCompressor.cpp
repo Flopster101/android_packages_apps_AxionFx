@@ -127,13 +127,15 @@ void MultibandCompressor::processBlock(float* buffer, int frames) {
     }
 
     for (int f = 0; f < frames; ++f) {
-        float l = 0.0f, r = 0.0f;
+        float wetL = 0.0f, wetR = 0.0f;
         for (int b = 0; b < MCOMP_BANDS; ++b) {
-            l += mBandBufL[b][f];
-            r += mBandBufR[b][f];
+            wetL += mBandBufL[b][f];
+            wetR += mBandBufR[b][f];
         }
-        buffer[f * 2] = l;
-        buffer[f * 2 + 1] = r;
+        float dryL = buffer[f * 2];
+        float dryR = buffer[f * 2 + 1];
+        buffer[f * 2] = dryL * (1.0f - mBlend) + wetL * mBlend;
+        buffer[f * 2 + 1] = dryR * (1.0f - mBlend) + wetR * mBlend;
     }
 }
 
@@ -180,6 +182,10 @@ void MultibandCompressor::setCrossoverFreq(int index, float hz) {
         mHighpassL[index].configure(BiquadType::HIGHPASS, mSampleRate, hz, 0.0f, 0.707f);
         mHighpassR[index].configure(BiquadType::HIGHPASS, mSampleRate, hz, 0.0f, 0.707f);
     }
+}
+
+void MultibandCompressor::setBlend(float blend) {
+    mBlend = std::clamp(blend, 0.0f, 1.0f);
 }
 
 void MultibandCompressor::reset() {

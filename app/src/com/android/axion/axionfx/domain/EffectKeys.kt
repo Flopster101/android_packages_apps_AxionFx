@@ -69,6 +69,7 @@ object EffectKeys {
     const val MCOMP_THRESH_PREFIX = "mcomp_thresh_"
     const val MCOMP_RATIO_PREFIX = "mcomp_ratio_"
     const val MCOMP_MAKEUP_PREFIX = "mcomp_makeup_"
+    const val MCOMP_BLEND = "mcomp_blend"
 
     const val CONVOLVER_ENABLED = "convolver_enabled"
     const val CONVOLVER_MIX = "convolver_mix"

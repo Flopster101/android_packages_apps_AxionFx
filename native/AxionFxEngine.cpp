@@ -304,6 +304,9 @@ void AxionFxEngine::setParameter(int32_t paramId, int32_t value) {
             mMultibandComp.setCrossoverFreq(index, hz);
             break;
         }
+        case PARAM_MCOMP_BLEND:
+            mMultibandComp.setBlend(static_cast<float>(value) / 100.0f);
+            break;
 
         case PARAM_EXCITER_ENABLE:
             mExciter.setEnabled(value != 0);

@@ -216,6 +216,11 @@ class EffectInteractor(private val repo: EffectRepository) {
         AxionFxController.setMCompBandMakeup(band, value)
     }
 
+    fun setMCompBlend(value: Int) {
+        repo.putInt(EffectKeys.MCOMP_BLEND, value)
+        AxionFxController.setMCompBlend(value)
+    }
+
     fun setConvolverEnabled(enabled: Boolean) {
         repo.putBoolean(EffectKeys.CONVOLVER_ENABLED, enabled)
         AxionFxController.setConvolverEnabled(enabled)
@@ -296,6 +301,7 @@ class EffectInteractor(private val repo: EffectRepository) {
 
         // Multiband & Convolver
         setMCompEnabled(EffectDefaults.MCOMP_ENABLED)
+        setMCompBlend(EffectDefaults.MCOMP_BLEND)
         for (i in 0..3) {
             setMCompBandThreshold(i, EffectDefaults.MCOMP_THRESHOLD)
             setMCompBandRatio(i, EffectDefaults.MCOMP_RATIO)

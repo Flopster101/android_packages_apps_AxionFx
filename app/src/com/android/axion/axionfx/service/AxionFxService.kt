@@ -37,6 +37,8 @@ import com.android.axion.axionfx.AxionFxController
 import com.android.axion.axionfx.device.DeviceCategory
 import com.android.axion.axionfx.device.DeviceProfile
 import com.android.axion.axionfx.device.DeviceProfileManager
+import com.android.axion.axionfx.domain.EffectDefaults
+import com.android.axion.axionfx.domain.EffectKeys
 import com.android.axion.axionfx.preset.PresetManager
 import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -226,7 +228,8 @@ class AxionFxService : Service() {
             AxionFxController.setMCompBandRatio(i, prefs.getInt("mcomp_ratio_$i", 400))
             AxionFxController.setMCompBandMakeup(i, prefs.getInt("mcomp_makeup_$i", 0))
         }
-        AxionFxController.setMCompEnabled(prefs.getBoolean("mcomp_enabled", false))
+        AxionFxController.setMCompBlend(prefs.getInt(EffectKeys.MCOMP_BLEND, EffectDefaults.MCOMP_BLEND))
+        AxionFxController.setMCompEnabled(prefs.getBoolean(EffectKeys.MCOMP_ENABLED, false))
 
         for (i in 0..14) {
             AxionFxController.setFirEqBandGain(i, prefs.getInt("fir_eq_band_$i", 0))

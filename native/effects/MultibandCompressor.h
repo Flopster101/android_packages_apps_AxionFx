@@ -49,6 +49,7 @@ public:
     void setBandRelease(int band, float ms);
     void setBandMakeup(int band, float dB);
     void setCrossoverFreq(int index, float hz);
+    void setBlend(float blend);
 
     void reset();
 
@@ -61,6 +62,7 @@ private:
 
     bool mEnabled = false;
     float mSampleRate = 48000.0f;
+    float mBlend = 1.0f;
 
     float mCrossoverFreqs[MCOMP_BANDS - 1] = {200.0f, 1000.0f, 5000.0f};
 

@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.android.axion.axionfx.R
+import com.android.axion.axionfx.domain.EffectDefaults
 import com.android.axion.axionfx.domain.EffectKeys
 import com.android.axion.axionfx.ui.components.EffectSlider
 import com.android.axion.compose.preferences.PreferenceGroup
@@ -48,6 +49,7 @@ fun MultibandScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
     BackHandler(onBack = onBackClick)
 
     var enabled by remember { mutableStateOf(viewModel.loadBoolean(KEY_MCOMP_ENABLED, false)) }
+    var blend by remember { mutableFloatStateOf(viewModel.loadInt(EffectKeys.MCOMP_BLEND, EffectDefaults.MCOMP_BLEND).toFloat()) }
 
     val thresholds = remember {
         Array(4) { mutableFloatStateOf(viewModel.loadInt("mcomp_thresh_$it", -200).toFloat()) }
@@ -78,6 +80,20 @@ fun MultibandScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
                         onCheckedChange = {
                             enabled = it
                             viewModel.interactor.setMCompEnabled(it)
+                        },
+                    )
+                }
+                item {
+                    EffectSlider(
+                        title = stringResource(R.string.mcomp_blend_title),
+                        summary = stringResource(R.string.mcomp_blend_summary),
+                        value = blend,
+                        valueRange = 0f..100f,
+                        unit = "%",
+                        enabled = enabled,
+                        onValueChange = {
+                            blend = it
+                            viewModel.interactor.setMCompBlend(it.toInt())
                         },
                     )
                 }

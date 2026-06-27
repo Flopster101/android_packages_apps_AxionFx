@@ -65,6 +65,7 @@ object EffectDefaults {
     const val MCOMP_THRESHOLD = -200
     const val MCOMP_RATIO = 400
     const val MCOMP_MAKEUP = 0
+    const val MCOMP_BLEND = 100
 
     const val CONVOLVER_ENABLED = false
     const val CONVOLVER_MIX = 100

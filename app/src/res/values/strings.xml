@@ -176,6 +176,8 @@
     <string name="mcomp_range_low_mid">200 - 1000 Hz</string>
     <string name="mcomp_range_high_mid">1000 - 5000 Hz</string>
     <string name="mcomp_range_high">&gt; 5000 Hz</string>
+    <string name="mcomp_blend_title">Parallel Blend</string>
+    <string name="mcomp_blend_summary">Blend wet (compressed) and dry (uncompressed) signals</string>
 
     <!-- Exciter screen -->
     <string name="exciter_screen_title">Exciter</string>
