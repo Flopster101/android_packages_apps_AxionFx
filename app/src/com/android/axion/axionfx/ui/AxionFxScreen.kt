@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +53,7 @@ import com.android.axion.axionfx.ui.screens.TransientShaperScreen
 
 @Composable
 fun AxionFxScreen(viewModel: AxionFxViewModel) {
+    val saveableStateHolder = rememberSaveableStateHolder()
     var currentScreen by rememberSaveable { mutableStateOf<String?>(null) }
     val dashboardScrollState = rememberScrollState()
     val motionScheme = MaterialTheme.motionScheme
@@ -60,11 +62,13 @@ fun AxionFxScreen(viewModel: AxionFxViewModel) {
     if (isDualPane) {
         Row(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(0.5f)) {
-                DashboardScreen(
-                    viewModel = viewModel,
-                    onNavigate = { currentScreen = it },
-                    scrollState = dashboardScrollState,
-                )
+                saveableStateHolder.SaveableStateProvider(key = "dashboard") {
+                    DashboardScreen(
+                        viewModel = viewModel,
+                        onNavigate = { currentScreen = it },
+                        scrollState = dashboardScrollState,
+                    )
+                }
             }
             VerticalDivider(
                 modifier = Modifier.fillMaxHeight(),
@@ -80,11 +84,13 @@ fun AxionFxScreen(viewModel: AxionFxViewModel) {
                     },
                     label = "detail"
                 ) { screen ->
-                    DetailContent(
-                        screen = screen,
-                        viewModel = viewModel,
-                        onBack = { currentScreen = null },
-                    )
+                    saveableStateHolder.SaveableStateProvider(key = screen ?: "empty") {
+                        DetailContent(
+                            screen = screen,
+                            viewModel = viewModel,
+                            onBack = { currentScreen = null },
+                        )
+                    }
                 }
             }
         }
@@ -100,21 +106,24 @@ fun AxionFxScreen(viewModel: AxionFxViewModel) {
                 } else {
                     (slideInHorizontally(enterSpec) { -it / 3 } + fadeIn(motionScheme.defaultEffectsSpec()))
                         .togetherWith(slideOutHorizontally(exitSpec) { it / 3 } + fadeOut(motionScheme.fastEffectsSpec()))
-                }.using(SizeTransform(clip = false))
+                }
+                .using(SizeTransform(clip = false))
             },
             label = "screen"
         ) { screen ->
-            when (screen) {
-                null -> DashboardScreen(
-                    viewModel = viewModel,
-                    onNavigate = { currentScreen = it },
-                    scrollState = dashboardScrollState,
-                )
-                else -> DetailContent(
-                    screen = screen,
-                    viewModel = viewModel,
-                    onBack = { currentScreen = null },
-                )
+            saveableStateHolder.SaveableStateProvider(key = screen ?: "dashboard") {
+                when (screen) {
+                    null -> DashboardScreen(
+                        viewModel = viewModel,
+                        onNavigate = { currentScreen = it },
+                        scrollState = dashboardScrollState,
+                    )
+                    else -> DetailContent(
+                        screen = screen,
+                        viewModel = viewModel,
+                        onBack = { currentScreen = null },
+                    )
+                }
             }
         }
     }
