@@ -85,8 +85,6 @@ class AxionFxService : Service() {
         super.onCreate()
         instance = this
         prefs = getPrefs(this)
-        createNotificationChannel()
-        startForeground(NOTIFICATION_ID, buildNotification())
         AxionFxController.attachSession(0)
         restoreSettings()
         _autoSwitchEnabled.value = prefs.getBoolean(KEY_AUTO_SWITCH, true)
@@ -98,7 +96,6 @@ class AxionFxService : Service() {
         when (intent?.action) {
             ACTION_STOP -> {
                 AxionFxController.setMasterEnabled(false)
-                stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
                 return START_NOT_STICKY
             }
@@ -109,7 +106,6 @@ class AxionFxService : Service() {
         val speakerDspEnabled = prefs.getBoolean(EffectKeys.SPEAKER_DSP_ENABLED, true)
 
         if (!speakerDspEnabled && !masterEnabled) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return START_NOT_STICKY
         }
@@ -288,38 +284,7 @@ class AxionFxService : Service() {
         AxionFxController.setMasterEnabled(jniMasterEnabled)
     }
 
-    private fun createNotificationChannel() {
-        val channel = NotificationChannel(
-            CHANNEL_ID, getString(R.string.notification_channel),
-            NotificationManager.IMPORTANCE_LOW
-        )
-        channel.setShowBadge(false)
-        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
-    }
 
-    private fun buildNotification(active: Boolean = true): Notification {
-        val tapIntent = PendingIntent.getActivity(
-            this, 0,
-            Intent(this, AxionFxActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        val title = if (active) getString(R.string.notification_title)
-            else getString(R.string.notification_title_idle)
-        val text = if (active) getString(R.string.notification_text)
-            else getString(R.string.notification_text_idle)
-        return Notification.Builder(this, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_media_play)
-            .setContentTitle(title)
-            .setContentText(text)
-            .setContentIntent(tapIntent)
-            .setOngoing(active)
-            .build()
-    }
-
-    private fun updateNotification(active: Boolean) {
-        val nm = getSystemService(NotificationManager::class.java)
-        nm.notify(NOTIFICATION_ID, buildNotification(active))
-    }
 
     companion object {
         private const val NOTIFICATION_ID = 1
@@ -401,7 +366,7 @@ class AxionFxService : Service() {
             val masterEnabled = prefs.getBoolean(KEY_MASTER_ENABLED, defaultMaster)
             val speakerDspEnabled = prefs.getBoolean(EffectKeys.SPEAKER_DSP_ENABLED, true)
             if (!speakerDspEnabled && !masterEnabled) return
-            context.startForegroundService(Intent(context, AxionFxService::class.java))
+            context.startService(Intent(context, AxionFxService::class.java))
         }
 
         fun stop(context: Context) {

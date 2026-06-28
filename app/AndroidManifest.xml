@@ -26,8 +26,6 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
         android:label="AxionFx"
@@ -35,7 +33,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
         android:supportsRtl="true"
-        android:singleUser="true">
+        android:singleUser="true"
+        android:persistent="true">
 
         <activity
             android:name=".AxionFxActivity"
@@ -74,12 +73,7 @@
 
         <service
             android:name=".service.AxionFxService"
-            android:exported="false"
-            android:foregroundServiceType="specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="audio_processing" />
-        </service>
+            android:exported="false" />
 
         <service
             android:name=".service.AxionFxTileService"
