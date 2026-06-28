@@ -59,7 +59,7 @@ cc_library_shared {
     ],
 
     static_libs: [
-        "libpffft",
+        "libpffft-axion",
         "libsteamaudio",
     ],
 
