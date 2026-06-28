@@ -103,8 +103,12 @@ class AxionFxService : Service() {
                 return START_NOT_STICKY
             }
         }
-        val masterEnabled = prefs.getBoolean(KEY_MASTER_ENABLED, true)
-        if (!masterEnabled) {
+        val routed = DeviceCategory.activeOutputCategory(this)
+        val defaultMaster = (routed == DeviceCategory.SPEAKER)
+        val masterEnabled = prefs.getBoolean(KEY_MASTER_ENABLED, defaultMaster)
+        val speakerDspEnabled = prefs.getBoolean(EffectKeys.SPEAKER_DSP_ENABLED, true)
+
+        if (!speakerDspEnabled && !masterEnabled) {
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return START_NOT_STICKY
@@ -254,9 +258,20 @@ class AxionFxService : Service() {
         AxionFxController.setTransientShaperSustain(prefs.getInt(EffectKeys.TSHAPER_SUSTAIN, EffectDefaults.TSHAPER_SUSTAIN))
         AxionFxController.setTransientShaperEnabled(prefs.getBoolean(EffectKeys.TSHAPER_ENABLED, false))
 
-        val masterEnabled = prefs.getBoolean(KEY_MASTER_ENABLED, true)
+        val routed = DeviceCategory.activeOutputCategory(this)
+        val defaultMaster = (routed == DeviceCategory.SPEAKER)
+        val masterEnabled = prefs.getBoolean(KEY_MASTER_ENABLED, defaultMaster)
         _masterEnabled.value = masterEnabled
-        AxionFxController.setMasterEnabled(masterEnabled)
+
+        val speakerDspEnabled = prefs.getBoolean(EffectKeys.SPEAKER_DSP_ENABLED, true)
+        _speakerDspEnabled.value = speakerDspEnabled
+
+        val jniMasterEnabled = if (routed == DeviceCategory.SPEAKER) {
+            masterEnabled && speakerDspEnabled
+        } else {
+            masterEnabled
+        }
+        AxionFxController.setMasterEnabled(jniMasterEnabled)
     }
 
     private fun createNotificationChannel() {
@@ -339,9 +354,15 @@ class AxionFxService : Service() {
         val autoSwitchEnabledFlow: StateFlow<Boolean> = _autoSwitchEnabled.asStateFlow()
         private val _masterEnabled = MutableStateFlow(true)
         val masterEnabledFlow: StateFlow<Boolean> = _masterEnabled.asStateFlow()
+        private val _speakerDspEnabled = MutableStateFlow(true)
+        val speakerDspEnabledFlow: StateFlow<Boolean> = _speakerDspEnabled.asStateFlow()
 
         internal fun updateMasterEnabledFlow(enabled: Boolean) {
             _masterEnabled.value = enabled
+        }
+
+        internal fun updateSpeakerDspEnabledFlow(enabled: Boolean) {
+            _speakerDspEnabled.value = enabled
         }
 
         fun setAppliedPresetName(name: String?) {
@@ -354,13 +375,18 @@ class AxionFxService : Service() {
             _currentDeviceName.value = routed.deviceName
             val prefs = getPrefs(context)
             _autoSwitchEnabled.value = prefs.getBoolean(KEY_AUTO_SWITCH, true)
-            _masterEnabled.value = prefs.getBoolean(KEY_MASTER_ENABLED, true)
+            val defaultMaster = (routed.category == DeviceCategory.SPEAKER)
+            _masterEnabled.value = prefs.getBoolean(KEY_MASTER_ENABLED, defaultMaster)
+            _speakerDspEnabled.value = prefs.getBoolean(EffectKeys.SPEAKER_DSP_ENABLED, true)
         }
 
         fun start(context: Context) {
             val prefs = getPrefs(context)
-            val masterEnabled = prefs.getBoolean(KEY_MASTER_ENABLED, true)
-            if (!masterEnabled) return
+            val routed = DeviceCategory.activeOutputCategory(context)
+            val defaultMaster = (routed == DeviceCategory.SPEAKER)
+            val masterEnabled = prefs.getBoolean(KEY_MASTER_ENABLED, defaultMaster)
+            val speakerDspEnabled = prefs.getBoolean(EffectKeys.SPEAKER_DSP_ENABLED, true)
+            if (!speakerDspEnabled && !masterEnabled) return
             context.startForegroundService(Intent(context, AxionFxService::class.java))
         }
 

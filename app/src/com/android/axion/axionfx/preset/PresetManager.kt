@@ -116,7 +116,7 @@ object PresetManager {
 
     fun clearEffectSettings(editor: SharedPreferences.Editor, prefs: SharedPreferences) {
         for (key in prefs.all.keys) {
-            if (!key.startsWith("device_profile_")) {
+            if (!key.startsWith("device_profile_") && key != "auto_switch" && key != EffectKeys.SPEAKER_DSP_ENABLED) {
                 editor.remove(key)
             }
         }

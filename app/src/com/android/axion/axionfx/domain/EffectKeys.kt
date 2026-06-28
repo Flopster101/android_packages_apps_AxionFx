@@ -80,4 +80,6 @@ object EffectKeys {
     const val TSHAPER_ENABLED = "tshaper_enabled"
     const val TSHAPER_ATTACK = "tshaper_attack"
     const val TSHAPER_SUSTAIN = "tshaper_sustain"
+
+    const val SPEAKER_DSP_ENABLED = "speaker_dsp_enabled"
 }

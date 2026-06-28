@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import com.android.axion.axionfx.R
 import androidx.compose.ui.platform.LocalContext
 import com.android.axion.axionfx.AxionFxController
+import com.android.axion.axionfx.device.DeviceCategory
 import com.android.axion.axionfx.device.DeviceProfile
 import com.android.axion.axionfx.device.DeviceProfileManager
 import com.android.axion.axionfx.domain.EffectDefaults
@@ -98,6 +99,7 @@ fun DashboardScreen(
     val context = LocalContext.current
     val fx = viewModel.interactor
     val masterEnabled by AxionFxService.masterEnabledFlow.collectAsState()
+    val speakerDspEnabled by AxionFxService.speakerDspEnabledFlow.collectAsState()
     var outputGain by remember { mutableFloatStateOf(viewModel.loadInt(EffectKeys.OUTPUT_GAIN, EffectDefaults.OUTPUT_GAIN).toFloat()) }
 
     var bassEnabled by remember { mutableStateOf(viewModel.loadBoolean(EffectKeys.BASS_ENABLED, EffectDefaults.BASS_ENABLED)) }
@@ -382,15 +384,43 @@ fun DashboardScreen(
 
             PreferenceGroup {
                 item {
+                    val isSpeaker = (deviceCategory == DeviceCategory.SPEAKER)
                     SwitchPreference(
                         title = stringResource(R.string.master_enable_title),
                         summary = stringResource(R.string.master_enable_summary),
-                        checked = masterEnabled,
+                        checked = if (isSpeaker) false else masterEnabled,
                         onCheckedChange = {
                             fx.setMasterEnabled(it)
                             AxionFxService.updateMasterEnabledFlow(it)
-                            if (it) AxionFxService.start(context) else AxionFxService.stop(context)
+                            if (it) {
+                                AxionFxService.start(context)
+                            } else {
+                                if (!speakerDspEnabled) {
+                                    AxionFxService.stop(context)
+                                } else {
+                                    AxionFxService.start(context)
+                                }
+                            }
                         },
+                        enabled = !isSpeaker,
+                    )
+                }
+                item {
+                    SwitchPreference(
+                        title = stringResource(R.string.speaker_dsp_enable_title),
+                        summary = stringResource(R.string.speaker_dsp_enable_summary),
+                        checked = speakerDspEnabled,
+                        onCheckedChange = {
+                            fx.setSpeakerDspEnabled(it)
+                            val defaultMaster = (deviceCategory == DeviceCategory.SPEAKER)
+                            val masterEnabledVal = viewModel.repo.prefs.getBoolean(AxionFxService.KEY_MASTER_ENABLED, defaultMaster)
+                            if (!it && !masterEnabledVal) {
+                                AxionFxService.stop(context)
+                            } else {
+                                AxionFxService.start(context)
+                            }
+                        },
+                        enabled = true,
                     )
                 }
             }

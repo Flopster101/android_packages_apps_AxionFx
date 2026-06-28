@@ -18,6 +18,7 @@ package com.android.axion.axionfx.domain
 
 import com.android.axion.axionfx.AxionFxController
 import com.android.axion.axionfx.data.EffectRepository
+import com.android.axion.axionfx.service.AxionFxService
 
 class EffectInteractor(private val repo: EffectRepository) {
 
@@ -149,6 +150,12 @@ class EffectInteractor(private val repo: EffectRepository) {
     fun setLimiterRelease(value: Int) {
         repo.putInt(EffectKeys.LIMITER_RELEASE, value)
         AxionFxController.setParameter(0x502, value)
+    }
+
+    fun setSpeakerDspEnabled(enabled: Boolean) {
+        repo.putBoolean(EffectKeys.SPEAKER_DSP_ENABLED, enabled)
+        AxionFxService.updateSpeakerDspEnabledFlow(enabled)
+        AxionFxService.instance?.restoreSettings()
     }
 
     fun setReverbEnabled(enabled: Boolean) {
@@ -337,5 +344,7 @@ class EffectInteractor(private val repo: EffectRepository) {
         setTransientShaperEnabled(EffectDefaults.TSHAPER_ENABLED)
         setTransientShaperAttack(EffectDefaults.TSHAPER_ATTACK)
         setTransientShaperSustain(EffectDefaults.TSHAPER_SUSTAIN)
+
+        setSpeakerDspEnabled(EffectDefaults.SPEAKER_DSP_ENABLED)
     }
 }

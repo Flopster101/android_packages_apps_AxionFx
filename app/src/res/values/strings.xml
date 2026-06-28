@@ -29,7 +29,9 @@
 
     <!-- Master -->
     <string name="category_master">Master Limiter</string>
-    <string name="master_enable_title">Enable AxionFx</string>
+    <string name="master_enable_title">Enable AxionFx for current output</string>
+    <string name="speaker_dsp_enable_title">Enable AxionFx Speaker DSP</string>
+    <string name="speaker_dsp_enable_summary">Control processing specifically only for the speakers</string>
     <string name="master_enable_summary">Global audio processing engine</string>
     <string name="media_only_title">Media-only mode</string>
     <string name="media_only_summary">Only process audio during media playback</string>

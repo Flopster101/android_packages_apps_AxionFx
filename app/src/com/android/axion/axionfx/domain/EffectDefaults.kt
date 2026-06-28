@@ -74,4 +74,6 @@ object EffectDefaults {
     const val TSHAPER_ENABLED = false
     const val TSHAPER_ATTACK = 0
     const val TSHAPER_SUSTAIN = 0
+
+    const val SPEAKER_DSP_ENABLED = true
 }
