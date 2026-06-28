@@ -75,4 +75,8 @@ object EffectKeys {
     const val CONVOLVER_MIX = "convolver_mix"
     const val CONVOLVER_IR_PATH = "convolver_ir_path"
     const val CONVOLVER_IR_NAME = "convolver_ir_name"
+
+    const val TSHAPER_ENABLED = "tshaper_enabled"
+    const val TSHAPER_ATTACK = "tshaper_attack"
+    const val TSHAPER_SUSTAIN = "tshaper_sustain"
 }

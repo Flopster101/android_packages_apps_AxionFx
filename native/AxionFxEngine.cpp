@@ -57,6 +57,7 @@ void AxionFxEngine::configure(float sampleRate) {
     mExciter.configure(sampleRate);
     mFirEq.configure(sampleRate);
     mSteamSpatial.configure(sampleRate);
+    mTransientShaper.configure(sampleRate);
 }
 
 void AxionFxEngine::process(float* in, float* out, int samples) {
@@ -80,6 +81,7 @@ void AxionFxEngine::process(float* in, float* out, int samples) {
     mBassBoost.process(out, frames);
     mExciter.process(out, frames);
     mTubeSimulator.process(out, frames);
+    mTransientShaper.process(out, frames);
     mCompressor.process(out, frames);
     mMultibandComp.process(out, frames);
     mConvolver.process(out, frames);
@@ -343,6 +345,15 @@ void AxionFxEngine::setParameter(int32_t paramId, int32_t value) {
         case PARAM_SPATIAL_HRTF_PROFILE:
             mSteamSpatial.setHrtfProfile(value);
             break;
+        case PARAM_TSHAPER_ENABLE:
+            mTransientShaper.setEnabled(value != 0);
+            break;
+        case PARAM_TSHAPER_ATTACK:
+            mTransientShaper.setAttack(static_cast<float>(value) / 100.0f);
+            break;
+        case PARAM_TSHAPER_SUSTAIN:
+            mTransientShaper.setSustain(static_cast<float>(value) / 100.0f);
+            break;
 
         default:
             break;
@@ -412,6 +423,8 @@ int32_t AxionFxEngine::getParameter(int32_t paramId) const {
             return mFirEq.isEnabled() ? 1 : 0;
         case PARAM_SPATIAL_ENABLE:
             return mSteamSpatial.isEnabled() ? 1 : 0;
+        case PARAM_TSHAPER_ENABLE:
+            return mTransientShaper.isEnabled() ? 1 : 0;
         default:
             return 0;
     }

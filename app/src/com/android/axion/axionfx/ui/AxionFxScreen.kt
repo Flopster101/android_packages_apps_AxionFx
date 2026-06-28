@@ -48,6 +48,7 @@ import com.android.axion.axionfx.ui.screens.ExciterScreen
 import com.android.axion.axionfx.ui.screens.FirEqScreen
 import com.android.axion.axionfx.ui.screens.MultibandScreen
 import com.android.axion.axionfx.ui.screens.PresetsScreen
+import com.android.axion.axionfx.ui.screens.TransientShaperScreen
 
 @Composable
 fun AxionFxScreen(viewModel: AxionFxViewModel) {
@@ -131,6 +132,7 @@ private fun DetailContent(
         "multiband" -> MultibandScreen(viewModel = viewModel, onBackClick = onBack)
         "exciter" -> ExciterScreen(viewModel = viewModel, onBackClick = onBack)
         "convolver" -> ConvolverScreen(viewModel = viewModel, onBackClick = onBack)
+        "transient_shaper" -> TransientShaperScreen(viewModel = viewModel, onBackClick = onBack)
         "presets" -> PresetsScreen(viewModel = viewModel, onBackClick = onBack)
         "device_profiles" -> DeviceProfilesScreen(viewModel = viewModel, onBackClick = onBack)
         else -> DetailPlaceholder()

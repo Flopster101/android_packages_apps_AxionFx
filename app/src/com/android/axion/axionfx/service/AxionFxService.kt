@@ -249,6 +249,10 @@ class AxionFxService : Service() {
         AxionFxController.setParameter(0x1004, prefs.getInt("spatial_hrtf_profile", 0))
         AxionFxController.setSpatialEnabled(prefs.getBoolean("spatial_enabled", false))
 
+        AxionFxController.setTransientShaperAttack(prefs.getInt(EffectKeys.TSHAPER_ATTACK, EffectDefaults.TSHAPER_ATTACK))
+        AxionFxController.setTransientShaperSustain(prefs.getInt(EffectKeys.TSHAPER_SUSTAIN, EffectDefaults.TSHAPER_SUSTAIN))
+        AxionFxController.setTransientShaperEnabled(prefs.getBoolean(EffectKeys.TSHAPER_ENABLED, false))
+
         val masterEnabled = prefs.getBoolean(KEY_MASTER_ENABLED, true)
         _masterEnabled.value = masterEnabled
         AxionFxController.setMasterEnabled(masterEnabled)

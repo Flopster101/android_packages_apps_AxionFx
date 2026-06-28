@@ -173,6 +173,10 @@ object AxionFxController {
     fun setSpatialWidth(percent: Int) = setParameter(0x1001, percent)
     fun setSpatialBlend(percent: Int) = setParameter(0x1003, percent)
 
+    fun setTransientShaperEnabled(enabled: Boolean) = setParameter(0x1100, if (enabled) 1 else 0)
+    fun setTransientShaperAttack(percent: Int) = setParameter(0x1101, percent)
+    fun setTransientShaperSustain(percent: Int) = setParameter(0x1102, percent)
+
     fun releaseAll() {
         sessions.keys.toList().forEach { detachSession(it) }
     }

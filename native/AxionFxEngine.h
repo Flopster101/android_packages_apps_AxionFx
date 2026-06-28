@@ -32,6 +32,7 @@
 #include "effects/Exciter.h"
 #include "effects/FirEqualizer.h"
 #include "effects/SteamSpatial.h"
+#include "effects/TransientShaper.h"
 
 namespace axionfx {
 
@@ -71,6 +72,7 @@ private:
     Exciter mExciter;
     FirEqualizer mFirEq;
     SteamSpatial mSteamSpatial;
+    TransientShaper mTransientShaper;
 };
 
 }  // namespace axionfx

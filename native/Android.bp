@@ -37,6 +37,7 @@ filegroup {
         "effects/Exciter.cpp",
         "effects/FirEqualizer.cpp",
         "effects/SteamSpatial.cpp",
+        "effects/TransientShaper.cpp",
         "dsp/Biquad.cpp",
         "dsp/EnvelopeFollower.cpp",
         "dsp/WavLoader.cpp",

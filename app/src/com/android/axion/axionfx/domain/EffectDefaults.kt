@@ -69,4 +69,8 @@ object EffectDefaults {
 
     const val CONVOLVER_ENABLED = false
     const val CONVOLVER_MIX = 100
+
+    const val TSHAPER_ENABLED = false
+    const val TSHAPER_ATTACK = 0
+    const val TSHAPER_SUSTAIN = 0
 }

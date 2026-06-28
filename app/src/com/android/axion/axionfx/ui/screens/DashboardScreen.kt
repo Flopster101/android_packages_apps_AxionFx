@@ -32,6 +32,7 @@ import androidx.compose.material.icons.rounded.Equalizer
 import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material.icons.rounded.Waves
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.ExpandMore
@@ -499,6 +500,14 @@ fun DashboardScreen(
                         summary = stringResource(R.string.nav_convolver_summary),
                         icon = Icons.Rounded.Memory,
                         onClick = { onNavigate("convolver") },
+                    )
+                }
+                item {
+                    ClickablePreference(
+                        title = stringResource(R.string.nav_transient_shaper),
+                        summary = stringResource(R.string.nav_transient_shaper_summary),
+                        icon = Icons.Rounded.Waves,
+                        onClick = { onNavigate("transient_shaper") },
                     )
                 }
             }

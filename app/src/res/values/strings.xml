@@ -179,6 +179,18 @@
     <string name="mcomp_blend_title">Parallel Blend</string>
     <string name="mcomp_blend_summary">Blend wet (compressed) and dry (uncompressed) signals</string>
 
+    <!-- Transient Shaper screen -->
+    <string name="nav_transient_shaper">Transient Shaper</string>
+    <string name="nav_transient_shaper_summary">Adjust attack and sustain dynamics</string>
+    <string name="tshaper_screen_title">Transient Shaper</string>
+    <string name="tshaper_category">Transient Shaper</string>
+    <string name="tshaper_enable_title">Enable Transient Shaper</string>
+    <string name="tshaper_enable_summary">Dynamically reshape sound envelope</string>
+    <string name="tshaper_attack_title">Attack</string>
+    <string name="tshaper_attack_summary">Boost or cut initial transients</string>
+    <string name="tshaper_sustain_title">Sustain</string>
+    <string name="tshaper_sustain_summary">Boost or cut trailing sustain tail</string>
+
     <!-- Exciter screen -->
     <string name="exciter_screen_title">Exciter</string>
     <string name="exciter_category">Harmonic Exciter</string>

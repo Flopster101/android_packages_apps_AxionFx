@@ -221,6 +221,21 @@ class EffectInteractor(private val repo: EffectRepository) {
         AxionFxController.setMCompBlend(value)
     }
 
+    fun setTransientShaperEnabled(enabled: Boolean) {
+        repo.putBoolean(EffectKeys.TSHAPER_ENABLED, enabled)
+        AxionFxController.setTransientShaperEnabled(enabled)
+    }
+
+    fun setTransientShaperAttack(value: Int) {
+        repo.putInt(EffectKeys.TSHAPER_ATTACK, value)
+        AxionFxController.setTransientShaperAttack(value)
+    }
+
+    fun setTransientShaperSustain(value: Int) {
+        repo.putInt(EffectKeys.TSHAPER_SUSTAIN, value)
+        AxionFxController.setTransientShaperSustain(value)
+    }
+
     fun setConvolverEnabled(enabled: Boolean) {
         repo.putBoolean(EffectKeys.CONVOLVER_ENABLED, enabled)
         AxionFxController.setConvolverEnabled(enabled)
@@ -311,5 +326,10 @@ class EffectInteractor(private val repo: EffectRepository) {
         setConvolverMix(EffectDefaults.CONVOLVER_MIX)
         repo.putString(EffectKeys.CONVOLVER_IR_PATH, null)
         repo.putString(EffectKeys.CONVOLVER_IR_NAME, null)
+
+        // Transient Shaper
+        setTransientShaperEnabled(EffectDefaults.TSHAPER_ENABLED)
+        setTransientShaperAttack(EffectDefaults.TSHAPER_ATTACK)
+        setTransientShaperSustain(EffectDefaults.TSHAPER_SUSTAIN)
     }
 }
