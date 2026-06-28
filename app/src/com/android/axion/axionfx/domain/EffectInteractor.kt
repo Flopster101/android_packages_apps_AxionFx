@@ -146,6 +146,11 @@ class EffectInteractor(private val repo: EffectRepository) {
         AxionFxController.setParameter(0x501, value)
     }
 
+    fun setLimiterRelease(value: Int) {
+        repo.putInt(EffectKeys.LIMITER_RELEASE, value)
+        AxionFxController.setParameter(0x502, value)
+    }
+
     fun setReverbEnabled(enabled: Boolean) {
         repo.putBoolean(EffectKeys.REVERB_ENABLED, enabled)
         AxionFxController.setReverbEnabled(enabled)
@@ -294,6 +299,7 @@ class EffectInteractor(private val repo: EffectRepository) {
         setAgcEnabled(EffectDefaults.AGC_ENABLED)
         setLimiterEnabled(EffectDefaults.LIMITER_ENABLED)
         setLimiterThreshold(EffectDefaults.LIMITER_THRESHOLD)
+        setLimiterRelease(EffectDefaults.LIMITER_RELEASE)
 
         // Saturation & Exciter
         setTubeEnabled(EffectDefaults.TUBE_ENABLED)

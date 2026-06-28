@@ -47,6 +47,7 @@ object EffectDefaults {
     const val AGC_ENABLED = false
     const val LIMITER_ENABLED = true
     const val LIMITER_THRESHOLD = -10
+    const val LIMITER_RELEASE = 50
 
     const val REVERB_ENABLED = false
     const val REVERB_ROOM = 50

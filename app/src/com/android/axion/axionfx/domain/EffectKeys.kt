@@ -51,6 +51,7 @@ object EffectKeys {
     const val AGC_ENABLED = "agc_enabled"
     const val LIMITER_ENABLED = "limiter_enabled"
     const val LIMITER_THRESHOLD = "limiter_threshold"
+    const val LIMITER_RELEASE = "limiter_release"
 
     const val REVERB_ENABLED = "reverb_enabled"
     const val REVERB_ROOM = "reverb_room"

@@ -39,6 +39,8 @@
     <string name="output_pan_summary">Left/right balance</string>
     <string name="limiter_threshold_title">Limiter Threshold</string>
     <string name="limiter_threshold_summary">Limiter ceiling level</string>
+    <string name="limiter_release_title">Limiter Release</string>
+    <string name="limiter_release_summary">Limiter recovery time</string>
     <string name="surround_delay_title">Surround Delay</string>
     <string name="surround_delay_summary">Haas effect timing</string>
     <string name="surround_width_title">Surround Width</string>

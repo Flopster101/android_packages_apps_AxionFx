@@ -196,7 +196,8 @@ class AxionFxService : Service() {
         AxionFxController.setWidenerWidth(prefs.getInt(KEY_WIDENER_WIDTH, 100))
         AxionFxController.setWidenerEnabled(prefs.getBoolean(KEY_WIDENER_ENABLED, false))
 
-        AxionFxController.setParameter(0x501, prefs.getInt("limiter_threshold", -10))
+        AxionFxController.setParameter(0x501, prefs.getInt(EffectKeys.LIMITER_THRESHOLD, EffectDefaults.LIMITER_THRESHOLD))
+        AxionFxController.setParameter(0x502, prefs.getInt(EffectKeys.LIMITER_RELEASE, EffectDefaults.LIMITER_RELEASE))
         AxionFxController.setLimiterEnabled(prefs.getBoolean(KEY_LIMITER_ENABLED, true))
 
         AxionFxController.setReverbRoomSize(prefs.getInt(KEY_REVERB_ROOM, 50))

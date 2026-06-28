@@ -123,6 +123,7 @@ fun DashboardScreen(
     // Hoisted variables that were previously local to PreferenceGroup items
     var outputPan by remember { mutableFloatStateOf(viewModel.loadInt(EffectKeys.OUTPUT_PAN, EffectDefaults.OUTPUT_PAN).toFloat()) }
     var limiterThreshold by remember { mutableFloatStateOf(viewModel.loadInt(EffectKeys.LIMITER_THRESHOLD, EffectDefaults.LIMITER_THRESHOLD).toFloat()) }
+    var limiterRelease by remember { mutableFloatStateOf(viewModel.loadInt(EffectKeys.LIMITER_RELEASE, EffectDefaults.LIMITER_RELEASE).toFloat()) }
     var surroundDelay by remember { mutableFloatStateOf(viewModel.loadInt(EffectKeys.SURROUND_DELAY, EffectDefaults.SURROUND_DELAY).toFloat()) }
     var surroundWidth by remember { mutableFloatStateOf(viewModel.loadInt(EffectKeys.SURROUND_WIDTH, EffectDefaults.SURROUND_WIDTH).toFloat()) }
     var spatialBlend by remember { mutableFloatStateOf(viewModel.loadInt(EffectKeys.SPATIAL_BLEND, EffectDefaults.SPATIAL_BLEND).toFloat()) }
@@ -189,6 +190,7 @@ fun DashboardScreen(
                     spatialBlend = EffectDefaults.SPATIAL_BLEND.toFloat()
                     limiterEnabled = EffectDefaults.LIMITER_ENABLED
                     limiterThreshold = EffectDefaults.LIMITER_THRESHOLD.toFloat()
+                    limiterRelease = EffectDefaults.LIMITER_RELEASE.toFloat()
                 }) { Text(stringResource(R.string.reset_confirm)) }
             },
             dismissButton = {
@@ -463,6 +465,24 @@ fun DashboardScreen(
                         onReset = {
                             limiterThreshold = EffectDefaults.LIMITER_THRESHOLD.toFloat()
                             fx.setLimiterThreshold(EffectDefaults.LIMITER_THRESHOLD)
+                        },
+                    )
+                }
+                item {
+                    EffectSlider(
+                        title = stringResource(R.string.limiter_release_title),
+                        summary = stringResource(R.string.limiter_release_summary),
+                        value = limiterRelease,
+                        valueRange = 5f..1000f,
+                        unit = "ms",
+                        enabled = isActive,
+                        onValueChange = {
+                            limiterRelease = it
+                            fx.setLimiterRelease(it.toInt())
+                        },
+                        onReset = {
+                            limiterRelease = EffectDefaults.LIMITER_RELEASE.toFloat()
+                            fx.setLimiterRelease(EffectDefaults.LIMITER_RELEASE)
                         },
                     )
                 }

@@ -53,6 +53,7 @@ object PresetManager {
         EffectKeys.AGC_ENABLED,
         EffectKeys.LIMITER_ENABLED,
         EffectKeys.LIMITER_THRESHOLD,
+        EffectKeys.LIMITER_RELEASE,
         EffectKeys.REVERB_ENABLED,
         EffectKeys.REVERB_ROOM,
         EffectKeys.REVERB_WET,
