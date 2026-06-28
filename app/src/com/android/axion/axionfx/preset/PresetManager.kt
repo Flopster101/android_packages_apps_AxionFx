@@ -256,4 +256,50 @@ object PresetManager {
 
     private fun sanitizeName(name: String): String =
         name.replace(Regex("[^a-zA-Z0-9_\\- ]"), "").trim()
+
+    data class HardwarePreset(val filename: String, val displayName: String, val filePath: String)
+
+    fun listHardwarePresets(): List<HardwarePreset> {
+        val dir = File("/vendor/etc/dsp")
+        if (!dir.exists() || !dir.isDirectory) return emptyList()
+        val platform = android.os.Build.BOARD.lowercase()
+        val device = android.os.Build.DEVICE.lowercase()
+        val prefix = "spk-${platform}_${device}_"
+        val files = dir.listFiles { _, name -> name.startsWith(prefix) && name.endsWith(".json") }
+            ?: return emptyList()
+
+        return files.mapNotNull { file ->
+            try {
+                val jsonStr = file.readText()
+                val json = JSONObject(jsonStr)
+                val displayName = json.optString("name", file.nameWithoutExtension)
+                HardwarePreset(file.name, displayName, file.absolutePath)
+            } catch (e: Exception) {
+                null
+            }
+        }.sortedBy { it.displayName }
+    }
+
+    fun defaultHardwarePreset(): HardwarePreset? {
+        val list = listHardwarePresets()
+        if (list.isEmpty()) return null
+        val defaultFile = try {
+            val txtFile = File("/vendor/etc/dsp/default_speaker_tuning.txt")
+            if (txtFile.exists()) txtFile.readText().trim() else null
+        } catch (_: Exception) {
+            null
+        }
+        if (!defaultFile.isNullOrEmpty()) {
+            val found = list.firstOrNull { it.filename == defaultFile }
+            if (found != null) return found
+        }
+        return list.first() // Pick the first match if none set or not found
+    }
+
+    fun loadHardwarePreset(filePath: String, prefs: SharedPreferences) {
+        val file = File(filePath)
+        if (file.exists()) {
+            loadPresetFromJson(file.readText(), prefs)
+        }
+    }
 }

@@ -150,9 +150,23 @@ class AxionFxService : Service() {
             val editor = prefs.edit()
             PresetManager.clearEffectSettings(editor, prefs)
             editor.apply()
+            if (routed.category == DeviceCategory.SPEAKER) {
+                val defaultPreset = PresetManager.defaultHardwarePreset()
+                if (defaultPreset != null) {
+                    try {
+                        PresetManager.loadPresetFromJson(java.io.File(defaultPreset.filePath).readText(), prefs)
+                        _appliedPresetName.value = defaultPreset.displayName
+                    } catch (e: Exception) {
+                        _appliedPresetName.value = null
+                    }
+                } else {
+                    _appliedPresetName.value = null
+                }
+            } else {
+                _appliedPresetName.value = null
+            }
             restoreSettings()
             lastAppliedCategory = routed.category
-            _appliedPresetName.value = null
             Log.d(TAG, "Auto-switched to unbound profile for ${routed.category} (reset to defaults)")
             return
         }

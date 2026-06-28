@@ -224,6 +224,7 @@
     <string name="presets_empty">No presets saved yet</string>
     <string name="preset_loaded">Loaded: %1$s</string>
     <string name="presets_builtin_title">Quick Presets</string>
+    <string name="presets_hardware_title">Built-in</string>
     <string name="presets_saved_title">Saved Presets</string>
     <string name="presets_tap_to_load">Tap to load settings</string>
     <string name="presets_import">Import Preset</string>

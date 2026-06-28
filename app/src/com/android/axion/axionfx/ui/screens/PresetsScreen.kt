@@ -224,6 +224,28 @@ fun PresetsScreen(viewModel: AxionFxViewModel, onBackClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            val hardwarePresets = remember { PresetManager.listHardwarePresets() }
+            if (hardwarePresets.isNotEmpty()) {
+                PreferenceGroup(title = stringResource(R.string.presets_hardware_title)) {
+                    hardwarePresets.forEach { preset ->
+                        item {
+                            ClickablePreference(
+                                title = preset.displayName,
+                                summary = stringResource(R.string.presets_tap_to_load),
+                                icon = Icons.Rounded.Storage,
+                                onClick = {
+                                    PresetManager.loadHardwarePreset(preset.filePath, viewModel.repo.prefs)
+                                    AxionFxService.instance?.restoreSettings()
+                                    AxionFxService.setAppliedPresetName(preset.displayName)
+                                    Toast.makeText(context, context.getString(R.string.preset_loaded, preset.displayName), Toast.LENGTH_SHORT).show()
+                                },
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             PreferenceGroup(title = stringResource(R.string.presets_builtin_title)) {
                 PresetManager.listBuiltinPresets().forEach { name ->
                     item {
